@@ -140,7 +140,7 @@ class Zombie:
         else:
             return BehaviorTree.FAIL
 
-    def flee_from_boy(self, r = 7):
+    def flee_from_boy(self, r):
         self.state = 'Walk'
         self.move_slightly_to(self.x - play_mode.boy.x, self.y - play_mode.boy.y)
         if self.is_boy_nearby(r):
@@ -155,8 +155,8 @@ class Zombie:
         a2 = Action('Move to', self.move_to)
         a3 = Action('Set random location', self.set_random_location)
         a4 = Action('소년한테 접근', self.move_to_boy)
-        a5 = Action('순찰 위치 가져오기', self.get_patrol_location)
-        a6 = Action('소년으로 부터 도망치기', self.flee_from_boy)
+        # a5 = Action('순찰 위치 가져오기', self.get_patrol_location)
+        a6 = Action('소년으로 부터 도망치기', self.flee_from_boy, 7)
 
         # 상태
         c1 = Condition('소년이 근처에 있는가?', self.is_boy_nearby, 7)
@@ -164,15 +164,16 @@ class Zombie:
         c3 = Condition('공 갯수 짐', self.compare_ball_lose)
 
         # 시퀀스
-        SEQ_wander = Sequence('Wander', a3, a2)  # 랜덤위치를 정해서 이동
-        SEQ_chase_boy = Sequence('소년을 추적', c1, a6, a4)
-        SEL_chase_or_flee = Selector('추적 또는 배회', SEQ_chase_boy, SEQ_wander)
-        SEQ_flee_from_boy = Sequence('소년에서 도망', c1, a7, a8)
-        SEQ_flee_from_boy = Sequence('소년에서 도망', c1, a7, a8)
+        SEQ_wander = Sequence('Wander', a3, a2)  # 랜덤 위치를 정해서 이동
+        SEQ_chase_boy = Sequence('소년을 추적', c1, a4)
+        SEL_chase_or_wander = Selector('추적 또는 배회', SEQ_chase_boy, SEQ_wander)
+        SEQ_flee_from_boy = Sequence('소년에서 도망', c3, a6)
+        SEL_flee_or_chase = Selector('도망 또는 추적', SEQ_flee_from_boy, a4)
+        
 
         # SEQ_move_to_target_location = Sequence('Move to target location', a1, a2) # 정해진 위치로 이동
         # SEQ_patrol = Sequence('순찰', a5, a2)
 
-        root = Selector('루트', SEL_chase_or_flee, SEQ_flee_from_boy, SEQ_wander)
+        root = Selector('루트', SEL_chase_or_wander, SEQ_flee_from_boy, SEQ_wander)
 
         self.bt = BehaviorTree(root)
