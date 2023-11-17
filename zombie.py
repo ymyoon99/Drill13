@@ -174,6 +174,6 @@ class Zombie:
         # SEQ_move_to_target_location = Sequence('Move to target location', a1, a2) # 정해진 위치로 이동
         # SEQ_patrol = Sequence('순찰', a5, a2)
 
-        root = Selector('루트', SEQ_is_boy_near, SEQ_wander)
+        root = Selector('소년이 근처에 있으면 행동 or Wander', SEQ_is_boy_near, SEQ_wander)
 
         self.bt = BehaviorTree(root)
