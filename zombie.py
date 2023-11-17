@@ -100,6 +100,8 @@ class Zombie:
             return BehaviorTree.RUNNING
 
     def set_random_location(self):
+        self.tx, self.ty = random.randint(100,1200-100),random.randint(100,1024-100)
+        return BehaviorTree.SUCCESS
         pass
 
     def is_boy_nearby(self, distance):
@@ -116,5 +118,8 @@ class Zombie:
 
         a2 = Action('Move to', self.move_to)
 
-        root = SEQ_move_to_target_location = Sequence('Move to target location', a1, a2)
+        a3 = Action('Set random location', self.set_random_location)
+
+        root = SEQ_wander = Sequence('Wander', a3, a2)
+        # root = SEQ_move_to_target_location = Sequence('Move to target location', a1, a2)
         self.bt = BehaviorTree(root)
