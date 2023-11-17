@@ -163,7 +163,7 @@ class Zombie:
         c2 = Condition('공 갯수 이김',self.compare_ball_win)
         c3 = Condition('공 갯수 짐', self.compare_ball_lose)
 
-        # 시퀀스
+        # 셀렉터 & 시퀀스
         SEQ_wander = Sequence('Wander', a3, a2)  # 랜덤 위치를 정해서 이동
         SEQ_chase_boy = Sequence('소년을 추적', c2, a4)
         SEQ_flee_from_boy = Sequence('소년으로부터 도망', c3, a6)
