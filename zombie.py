@@ -165,9 +165,9 @@ class Zombie:
 
         # 시퀀스
         SEQ_wander = Sequence('Wander', a3, a2)  # 랜덤 위치를 정해서 이동
-        SEQ_chase_boy = Sequence('소년을 추적', c1, a4)
+        SEQ_chase_boy = Sequence('소년을 추적', c2, a4)
         SEQ_flee_from_boy = Sequence('소년으로부터 도망', c3, a6)
-        SEL_flee_or_chase = Selector('도망 또는 추적', SEQ_flee_from_boy, a4)
+        SEL_flee_or_chase = Selector('도망 또는 추적', SEQ_flee_from_boy, SEQ_chase_boy)
         SEQ_is_boy_near = Sequence('소년이 근처에 있으면 행동', c1, SEL_flee_or_chase)
 
         # SEL_chase_or_wander = Selector('추적 또는 배회', SEQ_chase_boy, SEQ_wander)
