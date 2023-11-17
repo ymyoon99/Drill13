@@ -2,6 +2,7 @@ from pico2d import *
 
 import random
 import math
+
 import game_framework
 import game_world
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
@@ -127,28 +128,51 @@ class Zombie:
         self.loc_no = (self.loc_no + 1) % len(self.patrol_locations)
         return BehaviorTree.SUCCESS
 
-    def compare_ball_count(self):
+    def compare_ball_win(self):
+        if self.ball_count >= play_mode.boy.ball_count:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
+    def compare_ball_lose(self):
         if self.ball_count < play_mode.boy.ball_count:
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
 
+    def flee_from_boy(self, r = 7):
+        self.state = 'Walk'
+        self.move_slightly_to(self.x - play_mode.boy.x, self.y - play_mode.boy.y)
+        if self.is_boy_nearby(r):
+            return BehaviorTree.RUNNING
+        else:
+            return BehaviorTree.SUCCESS
+
     def build_behavior_tree(self):
 
+        # 액션
         a1 = Action('Set target location', self.set_target_location, 500, 50)
         a2 = Action('Move to', self.move_to)
         a3 = Action('Set random location', self.set_random_location)
         a4 = Action('소년한테 접근', self.move_to_boy)
         a5 = Action('순찰 위치 가져오기', self.get_patrol_location)
-        a6 = Action('공 갯수 비교',self.compare_ball_count)
+        a6 = Action('소년으로 부터 도망치기', self.flee_from_boy)
 
+        # 상태
         c1 = Condition('소년이 근처에 있는가?', self.is_boy_nearby, 7)
+        c2 = Condition('공 갯수 이김',self.compare_ball_win)
+        c3 = Condition('공 갯수 짐', self.compare_ball_lose)
 
-        SEQ_wander = Sequence('Wander', a3, a2)
-        SEQ_move_to_target_location = Sequence('Move to target location', a1, a2)
-        SEQ_chase_boy = Sequence('소년을 추적', c1, a4)
+        # 시퀀스
+        SEQ_wander = Sequence('Wander', a3, a2)  # 랜덤위치를 정해서 이동
+        SEQ_chase_boy = Sequence('소년을 추적', c1, a6, a4)
         SEL_chase_or_flee = Selector('추적 또는 배회', SEQ_chase_boy, SEQ_wander)
-        SEQ_patrol = Sequence('순찰', a5, a2)
+        SEQ_flee_from_boy = Sequence('소년에서 도망', c1, a7, a8)
+        SEQ_flee_from_boy = Sequence('소년에서 도망', c1, a7, a8)
 
+        # SEQ_move_to_target_location = Sequence('Move to target location', a1, a2) # 정해진 위치로 이동
+        # SEQ_patrol = Sequence('순찰', a5, a2)
+
+        root = Selector('루트', SEL_chase_or_flee, SEQ_flee_from_boy, SEQ_wander)
 
         self.bt = BehaviorTree(root)
